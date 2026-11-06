@@ -1,0 +1,48 @@
+
+workflows:
+  techpro-android:
+    name: TechPro - Android APK
+    max_build_duration: 60
+
+    environment:
+      node: 22
+      java: 21
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    scripts:
+      - name: Installer les dependances
+        script: |
+          npm install
+
+      - name: Compiler TechPro Web
+        script: |
+          npm run build
+
+      - name: Creer le projet Android si absent
+        script: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+
+      - name: Synchroniser Capacitor
+        script: |
+          npx cap sync android
+
+      - name: Configurer Android SDK
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+
+      - name: Generer APK Android
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
