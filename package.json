@@ -1,0 +1,29 @@
+{
+  "name": "techpro-gestion-atelier",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TechPro - application de gestion d'atelier Android et Web",
+  "type": "module",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web-assets.mjs",
+    "build": "npm run prepare:web && vite build",
+    "android:add": "cap add android",
+    "android:sync": "npm run build && cap sync android",
+    "android:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/splash-screen": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/cli": "8.6.0",
+    "typescript": "5.9.3",
+    "vite": "7.1.12"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
