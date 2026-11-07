@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 export default defineConfig({
   base: './',
 
+  // Aucun dossier public
   publicDir: false,
 
   build: {
@@ -16,11 +17,14 @@ export default defineConfig({
 
   plugins: [
     {
-      name: 'copy-assetlinks-from-root',
+      name: 'copy-assetlinks',
 
       closeBundle() {
         const source = resolve('assetlinks.json');
-        const destinationDir = resolve('dist/.well-known');
+        const destinationDir = resolve(
+          'dist',
+          '.well-known'
+        );
         const destination = resolve(
           destinationDir,
           'assetlinks.json'
@@ -28,15 +32,18 @@ export default defineConfig({
 
         if (!existsSync(source)) {
           throw new Error(
-            'ERREUR : assetlinks.json introuvable à la racine'
+            'assetlinks.json introuvable à la racine GitHub'
           );
         }
 
-        mkdirSync(destinationDir, { recursive: true });
+        mkdirSync(destinationDir, {
+          recursive: true
+        });
+
         copyFileSync(source, destination);
 
         console.log(
-          'SUCCESS : assetlinks.json copié dans dist/.well-known/'
+          'assetlinks.json copié avec succès dans dist/.well-known/'
         );
       }
     }
