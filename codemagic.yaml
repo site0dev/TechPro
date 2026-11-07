@@ -19,6 +19,12 @@ workflows:
       - name: Installer les dependances
         script: |
           npm install
+          npm install --save-dev @capacitor/assets
+
+      - name: Preparer les icones TechPro
+        script: |
+          mkdir -p assets
+          cp icon-512.png assets/icon.png
 
       - name: Compiler TechPro Web
         script: |
@@ -29,6 +35,10 @@ workflows:
           if [ ! -d android ]; then
             npx cap add android
           fi
+
+      - name: Generer les icones Android
+        script: |
+          npx capacitor-assets generate --android
 
       - name: Synchroniser Capacitor
         script: |
@@ -46,3 +56,4 @@ workflows:
 
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
+ 
