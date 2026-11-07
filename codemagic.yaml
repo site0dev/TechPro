@@ -48,6 +48,16 @@ workflows:
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
 
+      - name: Configurer les liens Android TechPro
+        script: |
+          node patch-android-manifest.mjs
+
+      - name: Verifier le manifeste Android
+        script: |
+          grep -q 'techpro.phenixconnect.online' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:autoVerify="true"' android/app/src/main/AndroidManifest.xml
+          echo "Configuration App Links TechPro verifiee."
+
       - name: Generer APK Android
         script: |
           cd android
@@ -56,4 +66,3 @@ workflows:
 
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
- 
