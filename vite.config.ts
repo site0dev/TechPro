@@ -1,12 +1,11 @@
 
 import { defineConfig } from 'vite';
-import { copyFileSync, mkdirSync, existsSync } from 'node:fs';
+import { mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export default defineConfig({
   base: './',
 
-  // Le dossier public n'existe plus
   publicDir: false,
 
   build: {
@@ -17,22 +16,30 @@ export default defineConfig({
 
   plugins: [
     {
-      name: 'copy-assetlinks',
+      name: 'copy-assetlinks-from-root',
 
       closeBundle() {
         const source = resolve('assetlinks.json');
         const destinationDir = resolve('dist/.well-known');
-        const destination = resolve(destinationDir, 'assetlinks.json');
+        const destination = resolve(
+          destinationDir,
+          'assetlinks.json'
+        );
 
         if (!existsSync(source)) {
-          throw new Error('assetlinks.json est absent de la racine du projet');
+          throw new Error(
+            'ERREUR : assetlinks.json introuvable à la racine'
+          );
         }
 
         mkdirSync(destinationDir, { recursive: true });
         copyFileSync(source, destination);
 
-        console.log('assetlinks.json copié dans dist/.well-known/');
+        console.log(
+          'SUCCESS : assetlinks.json copié dans dist/.well-known/'
+        );
       }
     }
   ]
 });
+ 
