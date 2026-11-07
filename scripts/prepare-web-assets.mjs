@@ -9,7 +9,7 @@ await mkdir(publicDir, { recursive: true });
 // Le dépôt existant garde manifest.json, sw.js et les icônes à sa racine.
 // Vite ne copie automatiquement que le contenu de public/ : on les y place
 // avant le build, sans toucher aux fichiers sources du dépôt.
-const assets = ['manifest.json', 'sw.js', '192.png', 'icon-512.png'];
+const assets = ['manifest.json', 'sw.js', 'icon-192.png', 'icon-512.png'];
 for (const file of assets) {
   const source = resolve(root, file);
   try {
