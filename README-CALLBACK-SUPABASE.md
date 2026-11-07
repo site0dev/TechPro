@@ -1,42 +1,130 @@
-# TechPro — activation des liens d'e-mail Supabase
 
-Domaine utilisé : `https://techpro.phenixconnect.online`
-Callback web : `https://techpro.phenixconnect.online/auth/callback`
-Package Android : `online.phenixconnect.techpro`
+# TechPro — Configuration des liens de récupération
 
-## Ce que contient ce lot
-- `index.html` du projet fourni : il appelle déjà `signUp` avec `emailRedirectTo`, le reset avec `redirectTo`, et traite `code` / `token_hash` sur le callback.
-- `patch-android-manifest.mjs` : ajoute le deep link `techpro://auth/callback` et l'Android App Link HTTPS `/auth/callback`.
-- `public/.well-known/assetlinks.json.template` : modèle à compléter avec le SHA-256 réel du certificat APK.
+## 1. Domaine de l'application
 
-## Supabase
-Dans Authentication > URL Configuration :
-1. Site URL : `https://techpro.phenixconnect.online`
-2. Ajouter dans Redirect URLs : `https://techpro.phenixconnect.online/auth/callback`
-3. Garder les autres URLs existantes qui sont utilisées par l'application.
+Domaine officiel :
 
-Les templates e-mail Confirmation et Reset Password doivent conserver le lien Supabase `{{ .ConfirmationURL }}`. Le SDK transmet la destination de retour par `emailRedirectTo` / `redirectTo`.
+https://techpro.phenixconnect.online/
 
-## Déployer la vérification Android
-1. Construire et signer l'APK final.
-2. Récupérer le SHA-256 du certificat qui signe cet APK (debug ou release selon celui installé).
-3. Remplacer le texte `REMPLACER_PAR_SHA256_DU_CERTIFICAT_DE_SIGNATURE_APK` dans le modèle.
-4. Publier le fichier final sous `https://techpro.phenixconnect.online/.well-known/assetlinks.json` avec le type JSON.
-5. Recompiler/synchroniser Android après la modification du manifeste, puis installer l'APK.
+Application Android :
 
-Le modèle `assetlinks.json` n'est volontairement pas un fichier actif : sans empreinte du certificat réelle, Android ne peut pas vérifier le lien de domaine. Ne publiez pas le modèle avec le texte placeholder.
+- Nom : TechPro
+- Package : online.phenixconnect.techpro
 
-## Compilation
-À la racine du dépôt :
-```bash
-npm install
-npm run android:sync
-```
-Puis ouvrir Android Studio ou utiliser le workflow GitHub Actions déjà présent pour générer l'APK.
+## 2. URL de callback Supabase
 
-## Test
-- Test web : ouvrir un lien confirmation/reset sur le navigateur, vérifier le retour au callback et la session.
-- Test Android : installer l'APK signé correspondant au SHA-256 publié, ouvrir le lien HTTPS depuis un e-mail, vérifier que TechPro s'ouvre.
-- Pour reset password, le callback doit présenter le champ nouveau mot de passe puis enregistrer avec `supabase.auth.updateUser({ password })`.
+URL de callback :
 
-Ne partagez pas les secrets SMTP, Supabase service role, ni la clé privée de signature.
+https://techpro.phenixconnect.online/auth/callback
+
+Cette URL doit être autorisée dans Supabase.
+
+Dans Supabase :
+
+Authentication
+→ URL Configuration
+→ Redirect URLs
+
+Ajouter :
+
+https://techpro.phenixconnect.online/auth/callback
+
+Ne pas remplacer cette URL par une URL localhost.
+
+## 3. Liens de récupération
+
+Les emails de récupération doivent rediriger vers :
+
+https://techpro.phenixconnect.online/auth/callback
+
+Le lien de récupération doit conserver les paramètres ou le fragment de récupération générés par Supabase.
+
+Ne pas supprimer :
+
+- access_token
+- refresh_token
+- type
+- code
+
+Le format exact dépend du type de lien généré par Supabase.
+
+## 4. Android App Links
+
+Domaine :
+
+techpro.phenixconnect.online
+
+Package :
+
+online.phenixconnect.techpro
+
+Fichier d'association :
+
+https://techpro.phenixconnect.online/.well-known/assetlinks.json
+
+Le fichier assetlinks.json doit contenir :
+
+- le package Android exact
+- le SHA-256 du certificat de signature de l'APK installé
+
+Le certificat utilisé dans assetlinks.json doit correspondre
+à celui de la version Android distribuée.
+
+## 5. Manifest Android
+
+Le manifeste Android doit déclarer :
+
+- android:autoVerify="true"
+- android.intent.action.VIEW
+- android.intent.category.DEFAULT
+- android.intent.category.BROWSABLE
+- scheme https
+- host techpro.phenixconnect.online
+- pathPrefix /auth/callback
+
+Le manifeste est modifié par :
+
+patch-android-manifest.mjs
+
+Ne pas créer un deuxième manifeste à la racine du dépôt.
+
+## 6. Compilation
+
+Après modification du manifeste :
+
+1. Vérifier que le script patch-android-manifest.mjs est exécuté.
+2. Synchroniser le projet Capacitor Android.
+3. Appliquer le patch au manifeste.
+4. Compiler l'application.
+5. Signer l'APK avec le certificat attendu.
+6. Installer la nouvelle APK sur Android.
+
+## 7. Vérification
+
+Tester :
+
+https://techpro.phenixconnect.online/.well-known/assetlinks.json
+
+Le résultat doit être le JSON d'association Android.
+
+Tester ensuite un lien de récupération Supabase.
+
+L'ouverture directe dans l'application nécessite :
+
+- un assetlinks.json valide
+- une signature Android correspondante
+- un manifeste correct
+- une application installée
+- la validation Android des App Links
+
+La configuration du domaine dans Vercel ne suffit pas à elle seule.
+
+## 8. Important
+
+Ne pas modifier les DNS ou les redirections Vercel pour résoudre
+un problème de callback Android.
+
+Le domaine TechPro est :
+
+https://techpro.phenixconnect.online/
